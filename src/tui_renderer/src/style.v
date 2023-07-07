@@ -1,25 +1,7 @@
 module tui_renderer
 
 import term
-
-pub enum Color {
-	black = 0xC015
-	blue
-	cyan
-	green
-	magenta
-	red
-	white
-	yellow
-	bright_black
-	bright_blue
-	bright_cyan
-	bright_green
-	bright_magenta
-	bright_red
-	bright_white
-	bright_yellow
-}
+import term.ui
 
 pub enum Weight {
 	normal = 0xA167
@@ -28,17 +10,6 @@ pub enum Weight {
 	underlined
 }
 
-////////////    Box Drawing[1]
-////////////    Official Unicode Consortium code chart (PDF)
-////////////            0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
-////////////    U+250x	─	━	│	┃	┄	┅	┆	┇	┈	┉	┊	┋	┌	┍	┎	┏
-////////////    U+251x	┐	┑	┒	┓	└	┕	┖	┗	┘	┙	┚	┛	├	┝	┞	┟
-////////////    U+252x	┠	┡	┢	┣	┤	┥	┦	┧	┨	┩	┪	┫	┬	┭	┮	┯
-////////////    U+253x	┰	┱	┲	┳	┴	┵	┶	┷	┸	┹	┺	┻	┼	┽	┾	┿
-////////////    U+254x	╀	╁	╂	╃	╄	╅	╆	╇	╈	╉	╊	╋	╌	╍	╎	╏
-////////////    U+255x	═	║	╒	╓	╔	╕	╖	╗	╘	╙	╚	╛	╜	╝	╞	╟
-////////////    U+256x	╠	╡	╢	╣	╤	╥	╦	╧	╨	╩	╪	╫	╬	╭	╮	╯
-////////////    U+257x	╰	╱	╲	╳	╴	╵	╶	╷	╸	╹	╺	╻	╼	╽	╾	╿
 type BorderSet = string
 
 pub struct BorderSets {
@@ -60,48 +31,61 @@ pub fn (b BorderSet) borders() (string, string, string, string, string, string) 
 }
 
 pub struct Style {
-	background Color
-	color      Color
+	background ui.Color
+	color      ui.Color
 	border_set BorderSet
 	weight     Weight
 }
 
-pub fn (s Style) apply(text string) string {
-	mut r := match s.background {
-		.black { term.bg_black(text) }
-		.blue { term.bg_blue(text) }
-		.cyan { term.bg_cyan(text) }
-		.green { term.bg_green(text) }
-		.magenta { term.bg_magenta(text) }
-		.red { term.bg_red(text) }
-		.white { term.bg_white(text) }
-		.yellow { term.bg_yellow(text) }
-		.bright_black { term.bright_bg_black(text) }
-		.bright_blue { term.bright_bg_blue(text) }
-		.bright_cyan { term.bright_bg_cyan(text) }
-		.bright_green { term.bright_bg_green(text) }
-		.bright_magenta { term.bright_bg_magenta(text) }
-		.bright_red { term.bright_bg_red(text) }
-		.bright_white { term.bright_bg_white(text) }
-		.bright_yellow { term.bright_bg_yellow(text) }
+pub fn (s Style) apply_to_context(mut ctx ui.Context) {
+	ctx.set_bg_color(s.background)
+	ctx.set_color(s.color)
+	match s.weight {
+		.normal { ctx.reset() }
+		.bold { ctx.bold() }
+		.strikethrough { ctx.reset() }
+		.underlined { ctx.reset() }
 	}
-	r = match s.color {
-		.black { term.bg_black(r) }
-		.blue { term.bg_blue(r) }
-		.cyan { term.bg_cyan(r) }
-		.green { term.bg_green(r) }
-		.magenta { term.bg_magenta(r) }
-		.red { term.bg_red(r) }
-		.white { term.bg_white(r) }
-		.yellow { term.bg_yellow(r) }
-		.bright_black { term.bright_bg_black(r) }
-		.bright_blue { term.bright_bg_blue(r) }
-		.bright_cyan { term.bright_bg_cyan(r) }
-		.bright_green { term.bright_bg_green(r) }
-		.bright_magenta { term.bright_bg_magenta(r) }
-		.bright_red { term.bright_bg_red(r) }
-		.bright_white { term.bright_bg_white(r) }
-		.bright_yellow { term.bright_bg_yellow(r) }
+}
+
+pub fn (s Style) apply_to_text(text string) string {
+	mut r := match s.background.hex().parse_int(16, 8) or { 0 } {
+		0x000000 { term.bg_black(text) }
+		0x0000ff { term.bg_blue(text) }
+		0x00ffff { term.bg_cyan(text) }
+		0x00ff00 { term.bg_green(text) }
+		0xff00ff { term.bg_magenta(text) }
+		0xff0000 { term.bg_red(text) }
+		0xbfbfbf { term.bg_white(text) }
+		0xffff00 { term.bg_yellow(text) }
+		0x7f7f7f { term.bright_bg_black(text) }
+		0x7f7fff { term.bright_bg_blue(text) }
+		0x7fffff { term.bright_bg_cyan(text) }
+		0x7fff7f { term.bright_bg_green(text) }
+		0xff7fff { term.bright_bg_magenta(text) }
+		0xff7f7f { term.bright_bg_red(text) }
+		0xffffff { term.bright_bg_white(text) }
+		0xffff7f { term.bright_bg_yellow(text) }
+		else { term.bright_bg_yellow(text) }
+	}
+	r = match s.color.hex().parse_int(16, 8) or { 0 } {
+		0x000000 { term.bg_black(r) }
+		0x0000ff { term.bg_blue(r) }
+		0x00ffff { term.bg_cyan(r) }
+		0x00ff00 { term.bg_green(r) }
+		0xff00ff { term.bg_magenta(r) }
+		0xff0000 { term.bg_red(r) }
+		0xbfbfbf { term.bg_white(r) }
+		0xffff00 { term.bg_yellow(r) }
+		0x7f7f7f { term.bright_bg_black(r) }
+		0x7f7fff { term.bright_bg_blue(r) }
+		0x7fffff { term.bright_bg_cyan(r) }
+		0x7fff7f { term.bright_bg_green(r) }
+		0xff7fff { term.bright_bg_magenta(r) }
+		0xff7f7f { term.bright_bg_red(r) }
+		0xffffff { term.bright_bg_white(r) }
+		0xffff7f { term.bright_bg_yellow(r) }
+		else { term.bright_bg_yellow(text) }
 	}
 	r = match s.weight {
 		.normal { term.reset(r) }

@@ -20,8 +20,8 @@ pub fn init_slice(width i32, height i32) ScreenBuffer {
 		width: width
 		height: height
 		style: Style{
-			color: .white
-			background: .black
+			color: Color.white.to_ui_color()
+			background: Color.black.to_ui_color()
 			border_set: BorderSets{}.single_solid_rounded
 		}
 	}
