@@ -3,6 +3,7 @@ module main
 import time
 import tui_renderer
 import term
+import term.ui
 
 fn main_0() {
 	println('Hello World!')
@@ -34,7 +35,7 @@ fn main_0() {
 fn main() {
 	// w, h := term.get_terminal_size()
 	mut vp := tui_renderer.viewport_create()
-	vp.add(tui_renderer.Rectangle{
+	mut r := tui_renderer.Rectangle{
 		text: '
 				White Man came across the sea
 				He brought us pain and misery
@@ -68,7 +69,7 @@ fn main() {
 		}
 		scroll: term.Coord{
 			x: 0
-			y: 12
+			y: 0
 		}
 		style: tui_renderer.Style{
 			background: tui_renderer.Color.bright_blue.to_ui_color()
@@ -76,17 +77,22 @@ fn main() {
 			border_set: tui_renderer.BorderSets{}.single_solid_rounded
 			weight: .normal
 		}
-	})
-	mut r := vp.drawables[0]
-	r.add_event_listener(.mouse_scroll, fn (mut e tui_renderer.EventTarget) bool {
-		match e.event.direction {
-			.unknown {}
-			.up { e.target.scroll.y -= 1 }
-			.down { e.target.scroll.y += 1 }
-			.left {}
-			.right {}
+	}
+	r.add_event_listener(.mouse_scroll, fn (event &ui.Event, mut target tui_renderer.Drawable) bool {
+		if event.direction == .down {
+			target.scroll.y = (target.scroll.y + 1) % 50
+		} else {
+			target.scroll.y -= 1
+			if (target.scroll.y < 0) {
+				target.scroll.y = 0
+			}
 		}
 		return false
 	})
-	vp.ctx.run()!
+	r.add_event_listener(.mouse_up, fn [mut vp] (event &ui.Event, mut target tui_renderer.Drawable) bool {
+		vp.status += '+'
+		return false
+	})
+	vp.add(r)
+	vp.ctx.run()
 }

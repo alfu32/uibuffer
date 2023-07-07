@@ -13,13 +13,14 @@ pub mut:
 pub interface Drawable {
 	draw(mut ctx ui.Context)
 	get_box() Box
+	get_text_lines() []string
 mut:
 	style Style
 	scroll term.Coord
 	anchor term.Coord
 	size term.Coord
 	event_listeners map[ui.EventType][]EventListener
-	dispatch_event(mut e EventTarget)
+	dispatch_event(event &ui.Event, mut target Drawable)
 	add_event_listener(t ui.EventType, el EventListener)
 }
 
@@ -80,7 +81,7 @@ pub fn viewport_create() &Viewport {
 		if e.typ == .key_down && e.code == .escape {
 			exit(0)
 		}
-		vp.dispatch_event(mut EventTarget{ target: &vp, event: e })
+		vp.dispatch_event(e, mut vp)
 	}
 	mut frame := fn [mut vp] (x voidptr) {
 		vp.ctx.clear()
@@ -104,6 +105,10 @@ pub fn viewport_create() &Viewport {
 	)
 	vp.ctx = ctx
 	return vp
+}
+
+pub fn (r Viewport) get_text_lines() []string {
+	return []
 }
 
 pub fn (mut r Viewport) clear() {
@@ -130,15 +135,15 @@ pub fn (mut r Viewport) render() {
 	}
 }
 
-pub fn (mut r Viewport) dispatch_event(mut evt EventTarget) {
-	e := evt.event
+pub fn (mut r Viewport) dispatch_event(e &ui.Event, mut target Drawable) {
 	r.status = '
 		x : ${e.x}, y : ${e.y}, typ : ${e.typ}, height : ${e.height}, width : ${e.width}, direction : ${e.direction}, code : ${e.code}
 	'.trim_indent()
-	for mut dw in r.drawables.filter(fn [e] (dw Drawable) bool {
+	/*.filter(fn [e] (dw Drawable) bool {
 		return dw.get_box().contains(x: e.x, y: e.y)
-	}) {
-		dw.dispatch_event(mut EventTarget{ target: &dw, event: e })
+	})*/
+	for mut dw in r.drawables {
+		dw.dispatch_event(e, mut &dw)
 	}
 }
 
@@ -151,7 +156,7 @@ fn (r Viewport) get_box() Box {
 	}
 }
 
-pub type EventListener = fn (mut e EventTarget) bool
+pub type EventListener = fn (event &ui.Event, mut target Drawable) bool
 
 pub struct Rectangle {
 pub mut:
@@ -182,12 +187,10 @@ pub fn (mut r Rectangle) add_event_listener(t ui.EventType, el EventListener) {
 }
 
 pub fn (r Rectangle) draw(mut ctx ui.Context) {
-	tx := chunk(r.text, r.size.x - 4)
+	tx := r.get_text_lines()
 	tl, tr, bl, br, ho, ve := r.style.border_set.borders()
 	scroller_pos := r.scroll.y * r.size.y / tx.len
-	page := '${scroller_pos.str()}/${tx.len}'
-	/// ctx.set_bg_color(r: 63, g: 81, b: 181)
-	/// ctx.draw_rect(r.anchor.x,r.anchor.y, r.anchor.x+r.size.x,r.anchor.y+r.size.y)
+	page := '${scroller_pos.str()}/${tx.len} ${r.scroll.y}'
 	r.style.apply_to_context(mut ctx)
 	ctx.draw_text(r.anchor.x, r.anchor.y, '${tl}${ho}${pad_right(page, ho, r.size.x - 3)}${tr}')
 	for l in r.anchor.y + 1 .. r.anchor.y + r.size.y - 1 {
@@ -216,11 +219,15 @@ fn (r Rectangle) get_box() Box {
 	}
 }
 
-pub fn (r Rectangle) dispatch_event(mut e EventTarget) {
-	k := e.event.typ
+pub fn (r Rectangle) dispatch_event(event &ui.Event, mut target Drawable) {
+	k := event.typ
 	for el in r.event_listeners[k] {
-		if el(mut e) {
+		if el(event, mut target) {
 			break
 		}
 	}
+}
+
+pub fn (r Rectangle) get_text_lines() []string {
+	return chunk(r.text, r.size.x - 4)
 }

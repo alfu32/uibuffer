@@ -97,3 +97,17 @@ pub fn test_translate() {
 	assert bx3.bottom == 9
 	assert bx3.right == 10
 }
+
+pub fn test_contains() {
+	bx := Box{
+		top: 0
+		left: 0
+		bottom: 16
+		right: 32
+	}
+	assert bx.contains(x: 10, y: 10)
+	assert bx.top == 0
+	assert bx.left == 0
+	assert bx.bottom == 16
+	assert bx.right == 32
+}
