@@ -1,4 +1,4 @@
-module tui_renderer
+module tui
 
 pub fn test_color_01() {
 	col := to_color(0x102030)

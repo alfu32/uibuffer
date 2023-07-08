@@ -1,4 +1,4 @@
-module tui_renderer
+module tui
 
 import term
 

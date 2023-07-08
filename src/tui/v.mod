@@ -1,5 +1,5 @@
 Module {
-	name: 'tui_renderer'
+	name: 'tui'
 	description: ''
 	version: '0.0.1'
 	license: 'MIT'

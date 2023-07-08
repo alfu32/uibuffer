@@ -1,4 +1,4 @@
-module tui_renderer
+module tui
 
 ////////////    Box Drawing[1]
 ////////////    Official Unicode Consortium code chart (PDF)

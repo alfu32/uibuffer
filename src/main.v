@@ -1,14 +1,14 @@
 module main
 
 import time
-import tui_renderer
+import tui
 import term
 import term.ui
 
 fn main_0() {
 	println('Hello World!')
 
-	mut buf := tui_renderer.init()
+	mut buf := tui.init()
 	dur := 500 * time.millisecond
 	for _ in 1 .. 3 {
 		buf.fill('+')
@@ -34,8 +34,9 @@ fn main_0() {
 
 fn main() {
 	// w, h := term.get_terminal_size()
-	mut vp := tui_renderer.viewport_create()
-	mut r := tui_renderer.Rectangle{
+	mut vp := tui.viewport_create()
+	mut r := tui.UiTextBox{
+		title: 'Run to the hills'
 		text: '
 				White Man came across the sea
 				He brought us pain and misery
@@ -71,28 +72,42 @@ fn main() {
 			x: 0
 			y: 0
 		}
-		style: tui_renderer.Style{
-			background: tui_renderer.Color.bright_blue.to_ui_color()
-			color: tui_renderer.Color.black.to_ui_color()
-			border_set: tui_renderer.BorderSets{}.single_solid_rounded
+		style: tui.Style{
+			background: tui.Color.bright_blue.to_ui_color()
+			color: tui.Color.black.to_ui_color()
+			border_set: tui.BorderSets{}.single_solid_rounded
 			weight: .normal
 		}
 	}
-	r.add_event_listener(.mouse_scroll, fn (event &ui.Event, mut target tui_renderer.Drawable) bool {
-		if event.direction == .down {
-			target.scroll.y = (target.scroll.y + 1) % 50
-		} else {
-			target.scroll.y -= 1
-			if (target.scroll.y < 0) {
-				target.scroll.y = 0
-			}
+	r.add_event_listener(.mouse_up, fn (event &ui.Event, mut target tui.Drawable) bool {
+		target.status += '+'
+		return false
+	})
+	mut b1 := tui.UiButton{
+		status: ''
+		title: ''
+		event_listeners: {}
+		text: 'hide'
+		anchor: term.Coord{
+			x: 5
+			y: 2
 		}
-		return false
-	})
-	r.add_event_listener(.mouse_up, fn [mut vp] (event &ui.Event, mut target tui_renderer.Drawable) bool {
-		vp.status += '+'
-		return false
-	})
+		size: term.Coord{
+			x: 20
+			y: 3
+		}
+		scroll: term.Coord{
+			x: 0
+			y: 0
+		}
+		style: tui.Style{
+			background: tui.Color.green.to_ui_color()
+			color: tui.Color.black.to_ui_color()
+			border_set: tui.BorderSets{}.single_solid_rounded
+			weight: .normal
+		}
+	}
 	vp.add(r)
+	vp.add(b1)
 	vp.ctx.run()
 }

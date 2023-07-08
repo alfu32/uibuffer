@@ -1,4 +1,4 @@
-module tui_renderer
+module tui
 
 pub fn test_chunk_string() {
 	str := "

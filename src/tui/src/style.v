@@ -1,13 +1,19 @@
-module tui_renderer
+module tui
 
 import term
 import term.ui
 
-pub enum Weight {
+pub enum TextWeight {
 	normal = 0xA167
 	bold
 	strikethrough
 	underlined
+}
+
+pub enum Visibility {
+	hidden = 0x12d6060
+	collapsed
+	visible
 }
 
 type BorderSet = string
@@ -34,18 +40,18 @@ pub struct Style {
 	background ui.Color
 	color      ui.Color
 	border_set BorderSet
-	weight     Weight
+	weight     TextWeight
 }
 
 pub fn (s Style) apply_to_context(mut ctx ui.Context) {
-	ctx.set_bg_color(s.background)
-	ctx.set_color(s.color)
 	match s.weight {
 		.normal { ctx.reset() }
 		.bold { ctx.bold() }
 		.strikethrough { ctx.reset() }
 		.underlined { ctx.reset() }
 	}
+	ctx.set_bg_color(s.background)
+	ctx.set_color(s.color)
 }
 
 pub fn (s Style) apply_to_text(text string) string {
