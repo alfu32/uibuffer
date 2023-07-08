@@ -39,5 +39,9 @@ fn (b Box) pad(padding i32) Box {
 }
 
 fn (b Box) contains(p term.Coord) bool {
-	return b.left <= p.x && b.right >= p.x && b.top <= p.y && b.bottom >= p.y
+	return (b.left <= p.x && b.right >= p.x) && (b.top <= p.y && b.bottom >= p.y)
+}
+
+fn (b Box) to_string() string {
+	return '(${b.left},${b.top}),(${b.right},${b.bottom})'
 }

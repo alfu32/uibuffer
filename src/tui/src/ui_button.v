@@ -22,7 +22,7 @@ pub mut:
 		y: 0
 	}
 	style Style = Style{
-		background: Color.black.to_ui_color()
+		background: Color.blue.to_ui_color()
 		color: Color.white.to_ui_color()
 		border_set: BorderSets{}.single_solid
 		weight: .normal
@@ -48,9 +48,9 @@ pub fn (r UiButton) draw(mut ctx ui.Context) {
 fn (r UiButton) get_box() Box {
 	return Box{
 		top: r.anchor.y
-		right: r.anchor.x
+		left: r.anchor.x
 		bottom: r.anchor.y + r.size.y
-		left: r.anchor.x + r.size.x
+		right: r.anchor.x + r.size.x
 	}
 }
 

@@ -5,6 +5,7 @@ import term
 
 pub struct UiViewport {
 pub mut:
+	log             []string
 	status          string
 	title           string
 	event_listeners map[ui.EventType][]EventListener
@@ -33,7 +34,9 @@ pub mut:
 pub fn viewport_create() &UiViewport {
 	w, h := term.get_terminal_size()
 	mut vp := &UiViewport{
+		log: []
 		drawables: []
+		event_listeners: {}
 		ctx: ui.init(ui.Config{
 			skip_init_checks: true
 		})
@@ -59,9 +62,12 @@ pub fn viewport_create() &UiViewport {
 
 	mut event := fn [mut vp] (e &ui.Event, x voidptr) {
 		if e.typ == .key_down && e.code == .escape {
+			vp.log << ('exiting')
+			println(vp.log)
 			exit(0)
+		} else {
+			vp.dispatch_event(e, mut vp)
 		}
-		vp.dispatch_event(e, mut vp)
 	}
 	mut frame := fn [mut vp] (x voidptr) {
 		vp.ctx.clear()
@@ -87,7 +93,7 @@ pub fn (mut r UiViewport) clear() {
 	r.ctx.clear()
 }
 
-pub fn (mut r UiViewport) add(dw Drawable) {
+pub fn (mut r UiViewport) add(mut dw Drawable) {
 	r.drawables << dw
 }
 
@@ -137,7 +143,15 @@ pub fn (mut r UiViewport) dispatch_event(e &ui.Event, mut target Drawable) {
 		return dw.get_box().contains(x: e.x, y: e.y)
 	})*/
 	for mut dw in r.drawables {
-		dw.dispatch_event(e, mut &dw)
+		dwbox := dw.get_box()
+		is_in := dwbox.contains(x: e.x, y: e.y)
+		// dw.status="(${e.x},${e.y}) in ${dwbox.to_string()} $is_in"
+		if is_in {
+			// r.log << ("$i dispatch ok ${e.x},${e.y}")
+			dw.dispatch_event(e, mut &dw)
+		} else {
+			// r.log << ("$i dispatch not ok ${e.x},${e.y}")
+		}
 	}
 }
 

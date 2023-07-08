@@ -77,15 +77,16 @@ pub fn (r UiTextBox) draw(mut ctx ui.Context) {
 		}
 	}
 	/// term.set_cursor_position(term.Coord{ x: r.anchor.x, y: r.anchor.y + r.size.y - 1 })
-	ctx.draw_text(r.anchor.x, r.anchor.y + r.size.y - 1, '${bl}${ho.repeat(r.size.x - 2)}${br}')
+	ctx.draw_text(r.anchor.x, r.anchor.y + r.size.y - 1, '${bl}${pad_left(r.status, ho,
+		r.size.x - 2)}${br}')
 }
 
 fn (r UiTextBox) get_box() Box {
 	return Box{
 		top: r.anchor.y
-		right: r.anchor.x
+		left: r.anchor.x
 		bottom: r.anchor.y + r.size.y
-		left: r.anchor.x + r.size.x
+		right: r.anchor.x + r.size.x
 	}
 }
 
