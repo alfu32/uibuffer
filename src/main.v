@@ -107,7 +107,7 @@ fn main() {
 			weight: .normal
 		}
 	}
-	vp.add(r)
+	// vp.add(r)
 	vp.add(b1)
 	vp.ctx.run()
 }
