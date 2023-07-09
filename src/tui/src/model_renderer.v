@@ -8,9 +8,10 @@ import strconv
 
 pub struct EventTarget {
 pub:
-	event &ui.Event
+	name  string
+	event ui.Event
 pub mut:
-	target &Drawable
+	target Ref[Drawable]
 }
 
 pub type EventListener = fn (event &ui.Event, mut target Drawable) bool
@@ -116,17 +117,17 @@ pub fn to_xml(d Drawable) string {
 	'.trim_indent()
 }
 
-pub fn from_xml(s string) Drawable {
-	doc := vxml.parse(s)
+pub fn from_xml(s string) &Drawable {
+	doc := vxml.parse(s.trim_indent())
 	node := doc.children[0]
 	widget_type := node.name
 
 	mut widget := match widget_type {
 		'ui-button' {
-			Drawable(UiButton{})
+			&Drawable(UiButton{})
 		}
 		else {
-			Drawable(UiTextBox{})
+			&Drawable(UiTextBox{})
 		}
 	}
 	for k, v in node.attributes {
@@ -144,6 +145,6 @@ pub fn from_xml(s string) Drawable {
 			else {}
 		}
 	}
-	widget.text = node.text
+	widget.text = node.text.trim_indent()
 	return widget
 }
