@@ -2,6 +2,7 @@ module tui
 
 import term
 import term.ui
+import strconv
 
 pub enum TextWeight {
 	normal = 0xA167
@@ -41,6 +42,40 @@ pub struct Style {
 	color      ui.Color
 	border_set BorderSet
 	weight     TextWeight
+}
+
+pub fn color_from_string(s string) ui.Color {
+	c := s.split(',')
+	return ui.Color{
+		r: u8(strconv.atoi(c[0]))
+		g: u8(strconv.atoi(c[1]))
+		b: u8(strconv.atoi(c[2]))
+	}
+}
+
+pub fn from_css(css string) Style {
+	mut background := ui.Color{}
+	mut color := ui.Color{}
+	mut border_set := ''
+	mut weight := .normal
+	for it in css.split(';') {
+		kv := it.split(':')
+		match kv[0] {
+			'background' { background = color_from_string(kv[1]) }
+			'color' { color = color_from_string(kv[1]) }
+			'border_set' { border_set = kv[1] }
+			'weight' { weight = TextWeight(kv[1]) }
+			else {}
+		}
+	}
+	mut s := Style{
+		background: background
+		color: color
+		border_set: border_set
+		weight: weight
+	}
+	return s
+	// "background:${s.background};color:${s.color};border_set:${s.border_set};weight:${s.weight}"
 }
 
 pub fn (s Style) apply_to_context(mut ctx ui.Context) {
@@ -100,4 +135,8 @@ pub fn (s Style) apply_to_text(text string) string {
 		.underlined { term.underline(r) }
 	}
 	return r
+}
+
+pub fn (s Style) to_css() string {
+	return 'background:${s.background};color:${s.color};border_set:${s.border_set};weight:${s.weight}'
 }
