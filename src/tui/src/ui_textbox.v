@@ -5,11 +5,14 @@ import term
 import math
 
 pub struct UiTextBox {
+mut:
+	is_hovered          bool
+	hovered_line_number i32
 pub mut:
 	status          string
 	title           string
-	event_listeners map[ui.EventType][]EventListener = {
-		ui.EventType.mouse_scroll: [
+	event_listeners map[string][]EventListener = {
+		'mouse_scroll': [
 			fn (event &ui.Event, mut target Drawable) bool {
 				txl := target.get_text_lines().len
 				h := target.size.y - 2
@@ -24,6 +27,12 @@ pub mut:
 				if target.scroll.y > (math.signi(txl - h + 1) * (txl - h + 1)) {
 					target.scroll.y -= 1
 				}
+				return false
+			},
+		]
+		'mouse_move':   [
+			fn (event &ui.Event, mut target Drawable) bool {
+				target.hovered_line_number = event.y - target.anchor.y
 				return false
 			},
 		]
@@ -47,9 +56,15 @@ pub mut:
 		border_set: BorderSets{}.single_solid
 		weight: .normal
 	}
+	hover_style Style = Style{
+		background: Color.bright_black.to_ui_color()
+		color: Color.white.to_ui_color()
+		border_set: BorderSets{}.single_solid
+		weight: .normal
+	}
 }
 
-pub fn (mut r UiTextBox) add_event_listener(t ui.EventType, el EventListener) {
+pub fn (mut r UiTextBox) add_event_listener(t string, el EventListener) {
 	r.event_listeners[t] << el
 }
 
@@ -91,8 +106,16 @@ fn (r UiTextBox) get_box() Box {
 }
 
 pub fn (r UiTextBox) dispatch_event(event &ui.Event, mut target Drawable) {
-	k := event.typ
+	k := '${event.typ}'
 	for el in r.event_listeners[k] {
+		if el(event, mut target) {
+			break
+		}
+	}
+}
+
+pub fn (mut r UiTextBox) dispatch_event_by_name(event_name string, event &ui.Event, mut target Drawable) {
+	for el in r.event_listeners[event_name] {
 		if el(event, mut target) {
 			break
 		}

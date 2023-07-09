@@ -39,8 +39,11 @@ pub fn test_pad_left() {
 	tx := '1234567890'
 	println(pad_left(tx, '-', 20))
 	println(pad_right(tx, '-', 20))
+	println(pad_center(tx, '-', 20))
 	println(pad_left(tx, '-', 5))
 	println(pad_right(tx, '-', 5))
+	println(pad_center(tx, '-', 5))
 	println(pad_left(tx, '-', 11))
 	println(pad_right(tx, '-', 11))
+	println(pad_center(tx, '-', 11))
 }

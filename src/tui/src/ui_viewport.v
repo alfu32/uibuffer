@@ -4,11 +4,14 @@ import term.ui
 import term
 
 pub struct UiViewport {
+mut:
+	is_hovered          bool
+	hovered_line_number i32
 pub mut:
 	log             []string
 	status          string
 	title           string
-	event_listeners map[ui.EventType][]EventListener
+	event_listeners map[string][]EventListener
 	drawables       []Drawable
 	ctx             &ui.Context
 	scroll          term.Coord = term.Coord{
@@ -24,6 +27,12 @@ pub mut:
 		y: 44
 	}
 	style Style = Style{
+		background: Color.black.to_ui_color()
+		color: Color.white.to_ui_color()
+		border_set: BorderSets{}.single_solid
+		weight: .normal
+	}
+	hover_style Style = Style{
 		background: Color.black.to_ui_color()
 		color: Color.white.to_ui_color()
 		border_set: BorderSets{}.single_solid
@@ -97,7 +106,7 @@ pub fn (mut r UiViewport) add(mut dw Drawable) {
 	r.drawables << dw
 }
 
-pub fn (mut r UiViewport) add_event_listener(t ui.EventType, el EventListener) {
+pub fn (mut r UiViewport) add_event_listener(t string, el EventListener) {
 	r.event_listeners[t] << el
 }
 
@@ -147,12 +156,24 @@ pub fn (mut r UiViewport) dispatch_event(e &ui.Event, mut target Drawable) {
 		is_in := dwbox.contains(x: e.x, y: e.y)
 		// dw.status="(${e.x},${e.y}) in ${dwbox.to_string()} $is_in"
 		if is_in {
-			// r.log << ("$i dispatch ok ${e.x},${e.y}")
+			if !dw.is_hovered {
+				dw.dispatch_event_by_name('mouse_in', e, mut &dw)
+				dw.is_hovered = true
+			}
 			dw.dispatch_event(e, mut &dw)
 		} else {
+			if dw.is_hovered {
+				dw.dispatch_event_by_name('mouse_out', e, mut &dw)
+				dw.is_hovered = false
+				dw.hovered_line_number = 0
+			}
 			// r.log << ("$i dispatch not ok ${e.x},${e.y}")
 		}
 	}
+}
+
+pub fn (mut r UiViewport) dispatch_event_by_name(event_name string, event &ui.Event, mut target Drawable) {
+	r.dispatch_event(event, mut target)
 }
 
 fn (r UiViewport) get_box() Box {

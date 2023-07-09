@@ -11,7 +11,7 @@ pub enum Color {
 	red = 0xff0000
 	white = 0xbfbfbf
 	yellow = 0xffff00
-	bright_black = 0x7f7f7f
+	bright_black = 0x3f3f3f
 	bright_blue = 0x7f7fff
 	bright_cyan = 0x7fffff
 	bright_green = 0x7fff7f

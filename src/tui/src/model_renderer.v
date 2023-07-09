@@ -17,13 +17,17 @@ pub interface Drawable {
 	get_box() Box
 	get_text_lines() []string
 mut:
+	is_hovered bool
+	hovered_line_number i32
 	style Style
+	hover_style Style
 	scroll term.Coord
 	anchor term.Coord
 	size term.Coord
-	event_listeners map[ui.EventType][]EventListener
+	event_listeners map[string][]EventListener
 	status string
 	title string
 	dispatch_event(event &ui.Event, mut target Drawable)
-	add_event_listener(t ui.EventType, el EventListener)
+	dispatch_event_by_name(event_name string, event &ui.Event, mut target Drawable)
+	add_event_listener(t string, el EventListener)
 }

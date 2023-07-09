@@ -11,6 +11,16 @@ pub fn pad_left(str string, chr string, n i32) string {
 	}
 }
 
+pub fn pad_center(str string, chr string, n i32) string {
+	return if str.len >= n {
+		str
+	} else {
+		pr := (n - str.len) / 2
+		pl := n - str.len - (n - str.len) / 2
+		'${chr.repeat(pl)}${str}${chr.repeat(pr)}'
+	}
+}
+
 pub fn pad_right(str string, chr string, n i32) string {
 	return if str.len >= n {
 		str
