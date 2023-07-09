@@ -3,6 +3,7 @@ module tui
 import term
 import term.ui
 import x.json2
+import json
 
 pub struct EventTarget {
 pub:
@@ -51,8 +52,44 @@ mut:
 	text                string
 }
 
-pub fn from_json(json string) !Drawable {
-	j := json2.decode[DrawableInit](json) or { panic('invalid json ${err} in \n ${json}') }
+pub fn from_json(js string) Drawable {
+	j := json.decode(DrawableInit, js) or { panic('invalid json ${err} in \n ${js}') }
+	match j.widget_type {
+		'ui-button' {
+			return UiButton{
+				widget_type: j.widget_type
+				is_hovered: j.is_hovered
+				hovered_line_number: j.hovered_line_number
+				status: j.status
+				title: j.title
+				text: j.text
+				anchor: j.anchor
+				size: j.size
+				scroll: j.scroll
+				style: j.style
+				hover_style: j.hover_style
+			}
+		}
+		else {
+			return UiTextBox{
+				widget_type: j.widget_type
+				is_hovered: j.is_hovered
+				hovered_line_number: j.hovered_line_number
+				status: j.status
+				title: j.title
+				text: j.text
+				anchor: j.anchor
+				size: j.size
+				scroll: j.scroll
+				style: j.style
+				hover_style: j.hover_style
+			}
+		}
+	}
+}
+
+pub fn from_json2(js string) !Drawable {
+	j := json2.decode[DrawableInit](js) or { panic('invalid json ${err} in \n ${js}') }
 	match j.widget_type {
 		'ui-button' {
 			return UiButton{
@@ -88,7 +125,7 @@ pub fn from_json(json string) !Drawable {
 }
 
 pub fn to_json(d Drawable) string {
-	return json2.encode[DrawableInit](DrawableInit{
+	return json.encode(DrawableInit{
 		widget_type: d.widget_type
 		is_hovered: d.is_hovered
 		hovered_line_number: d.hovered_line_number
