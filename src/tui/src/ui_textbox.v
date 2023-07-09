@@ -53,14 +53,14 @@ pub mut:
 	}
 	style Style = Style{
 		background: Color.black.to_ui_color()
-		color: Color.white.to_ui_color()
-		border_set: BorderSets{}.single_solid
+		color: Color.bright_black.to_ui_color()
+		border_set: BorderSets{}.single_dotted
 		weight: .normal
 	}
 	hover_style Style = Style{
 		background: Color.bright_black.to_ui_color()
 		color: Color.white.to_ui_color()
-		border_set: BorderSets{}.single_solid
+		border_set: BorderSets{}.single_solid_rounded
 		weight: .normal
 	}
 }
@@ -71,14 +71,19 @@ pub fn (mut r UiTextBox) add_event_listener(t string, el EventListener) {
 
 pub fn (r UiTextBox) draw(mut ctx ui.Context) {
 	tx := r.get_text_lines()
-	tl, tr, bl, br, ho, ve := r.style.border_set.borders()
+	mut style := r.style
+	mut tl, tr, bl, br, ho, ve := if r.is_hovered {
+		style = r.hover_style
+		r.hover_style.border_set.borders()
+	} else {
+		r.style.border_set.borders()
+	}
+	style.apply_to_context(mut ctx)
 	scroller_pos := (r.scroll.y * r.size.y + 2) / (tx.len + 1)
-	// mut status := '${scroller_pos.str()}/${tx.len} ${r.scroll.y}'
-	r.style.apply_to_context(mut ctx)
 	ctx.draw_text(r.anchor.x, r.anchor.y, '${tl}${ho}${pad_right('', ho, r.size.x - 3)}${tr}')
 	ctx.bold()
 	ctx.draw_text(r.anchor.x + 2, r.anchor.y, r.title)
-	r.style.apply_to_context(mut ctx)
+	style.apply_to_context(mut ctx)
 	for l in r.anchor.y + 1 .. r.anchor.y + r.size.y - 1 {
 		txl := r.scroll.y + (l - r.anchor.y - 1)
 		if (l - r.anchor.y - 1) >= scroller_pos - 1 && (l - r.anchor.y - 1) <= scroller_pos + 1 {

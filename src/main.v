@@ -104,8 +104,8 @@ fn main() {
 		}
 		hover_style: tui.Style{
 			background: tui.Color.red.to_ui_color()
-			color: tui.Color.yellow.to_ui_color()
-			border_set: tui.BorderSets{}.single_solid
+			color: tui.Color.white.to_ui_color()
+			border_set: tui.BorderSets{}.single_solid_rounded
 			weight: .bold
 		}
 	}

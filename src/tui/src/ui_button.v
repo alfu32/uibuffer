@@ -34,8 +34,8 @@ pub mut:
 	}
 	hover_style Style = Style{
 		background: Color.blue.to_ui_color()
-		color: Color.yellow.to_ui_color()
-		border_set: BorderSets{}.single_solid
+		color: Color.white.to_ui_color()
+		border_set: BorderSets{}.single_solid_rounded
 		weight: .bold
 	}
 }
@@ -46,12 +46,14 @@ pub fn (mut r UiButton) add_event_listener(t string, el EventListener) {
 
 pub fn (r UiButton) draw(mut ctx ui.Context) {
 	tx := r.text.trim_indent().trim(' ')
-	tl, tr, bl, br, ho, ve := r.style.border_set.borders()
-	if r.is_hovered {
-		r.hover_style.apply_to_context(mut ctx)
+	mut style := r.style
+	mut tl, tr, bl, br, ho, ve := if r.is_hovered {
+		style = r.hover_style
+		r.hover_style.border_set.borders()
 	} else {
-		r.style.apply_to_context(mut ctx)
+		r.style.border_set.borders()
 	}
+	style.apply_to_context(mut ctx)
 	ctx.draw_text(r.anchor.x, r.anchor.y, '${tl}${ho}${pad_right('', ho, r.size.x - 3)}${tr}')
 	ctx.draw_text(r.anchor.x, r.anchor.y + 1, '${ve}${pad_center(tx, ' ', r.size.x - 2)}${ve}')
 	ctx.draw_text(r.anchor.x, r.anchor.y + r.size.y - 1, '${bl}${pad_left(r.status, ho,
