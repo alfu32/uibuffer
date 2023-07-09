@@ -5,6 +5,7 @@ import term
 import math
 
 pub struct UiTextBox {
+	widget_type string = 'ui-textbox'
 mut:
 	is_hovered          bool
 	hovered_line_number i32
@@ -124,4 +125,8 @@ pub fn (mut r UiTextBox) dispatch_event_by_name(event_name string, event &ui.Eve
 
 pub fn (r UiTextBox) get_text_lines() []string {
 	return chunk(r.text, r.size.x - 2)
+}
+
+pub fn (d UiTextBox) to_json() string {
+	return to_json(d)
 }

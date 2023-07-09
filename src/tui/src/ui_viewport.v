@@ -4,6 +4,7 @@ import term.ui
 import term
 
 pub struct UiViewport {
+	widget_type string = 'ui-viewport'
 mut:
 	is_hovered          bool
 	hovered_line_number i32
@@ -11,6 +12,7 @@ pub mut:
 	log             []string
 	status          string
 	title           string
+	text            string
 	event_listeners map[string][]EventListener
 	drawables       []Drawable
 	ctx             &ui.Context
@@ -183,4 +185,8 @@ fn (r UiViewport) get_box() Box {
 		bottom: r.anchor.y + r.size.y
 		left: r.anchor.x + r.size.x
 	}
+}
+
+pub fn (d UiViewport) to_json() string {
+	return to_json(d)
 }

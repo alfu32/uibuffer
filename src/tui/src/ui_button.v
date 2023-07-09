@@ -2,8 +2,10 @@ module tui
 
 import term.ui
 import term
+import x.json2
 
 pub struct UiButton {
+	widget_type string = 'ui-button'
 mut:
 	is_hovered          bool
 	hovered_line_number i32
@@ -85,4 +87,8 @@ pub fn (mut r UiButton) dispatch_event_by_name(event_name string, event &ui.Even
 
 pub fn (r UiButton) get_text_lines() []string {
 	return chunk(r.text, r.size.x - 2)
+}
+
+pub fn (d UiButton) to_json() string {
+	return to_json(d)
 }

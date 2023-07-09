@@ -68,16 +68,6 @@ fn main() {
 			x: 44
 			y: 10
 		}
-		scroll: term.Coord{
-			x: 0
-			y: 0
-		}
-		style: tui.Style{
-			background: tui.Color.bright_blue.to_ui_color()
-			color: tui.Color.black.to_ui_color()
-			border_set: tui.BorderSets{}.single_solid
-			weight: .normal
-		}
 	}
 	mut r2 := tui.UiButton{
 		title: ''
@@ -90,23 +80,42 @@ fn main() {
 			x: 22
 			y: 3
 		}
-		scroll: term.Coord{
-			x: 0
-			y: 0
-		}
-		style: tui.Style{
-			background: tui.Color.blue.to_ui_color()
-			color: tui.Color.yellow.to_ui_color()
-			border_set: tui.BorderSets{}.single_solid_rounded
-			weight: .normal
-		}
 	}
 	r2.add_event_listener('mouse_up', fn (event &ui.Event, mut target tui.Drawable) bool {
 		target.status += '+'
 		return false
 	})
+	mut r3 := tui.UiButton{
+		title: ''
+		text: 'exit'
+		anchor: term.Coord{
+			x: 55
+			y: 13
+		}
+		size: term.Coord{
+			x: 22
+			y: 3
+		}
+		style: tui.Style{
+			background: tui.Color.red.to_ui_color()
+			color: tui.Color.white.to_ui_color()
+			border_set: tui.BorderSets{}.single_solid
+			weight: .normal
+		}
+		hover_style: tui.Style{
+			background: tui.Color.red.to_ui_color()
+			color: tui.Color.yellow.to_ui_color()
+			border_set: tui.BorderSets{}.single_solid
+			weight: .bold
+		}
+	}
+	r3.add_event_listener('mouse_up', fn (event &ui.Event, mut target tui.Drawable) bool {
+		exit(0)
+		return false
+	})
 	vp.add(mut r)
 	vp.add(mut r2)
+	vp.add(mut r3)
 	// vp.add(mut b1)
 	vp.ctx.run()
 }
