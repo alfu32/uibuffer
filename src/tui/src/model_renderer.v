@@ -40,17 +40,15 @@ mut:
 
 pub struct DrawableInit {
 mut:
-	widget_type         string
-	is_hovered          bool
-	hovered_line_number i32
-	style               Style
-	hover_style         Style
-	scroll              term.Coord
-	anchor              term.Coord
-	size                term.Coord
-	status              string
-	title               string
-	text                string
+	widget_type string
+	style       Style
+	hover_style Style
+	scroll      term.Coord
+	anchor      term.Coord
+	size        term.Coord
+	status      string
+	title       string
+	text        string
 }
 
 pub fn from_init(dinit DrawableInit) Drawable {
@@ -58,8 +56,6 @@ pub fn from_init(dinit DrawableInit) Drawable {
 		'ui-button' {
 			return UiButton{
 				widget_type: dinit.widget_type
-				is_hovered: dinit.is_hovered
-				hovered_line_number: dinit.hovered_line_number
 				status: dinit.status
 				title: dinit.title
 				text: dinit.text
@@ -73,8 +69,6 @@ pub fn from_init(dinit DrawableInit) Drawable {
 		else {
 			return UiTextBox{
 				widget_type: dinit.widget_type
-				is_hovered: dinit.is_hovered
-				hovered_line_number: dinit.hovered_line_number
 				status: dinit.status
 				title: dinit.title
 				text: dinit.text
@@ -125,31 +119,31 @@ pub fn to_xml(d Drawable) string {
 pub fn from_xml(s string) Drawable {
 	doc := vxml.parse(s)
 	node := doc.children[0]
-	x := strconv.atoi(node.attributes['anchor-x']) or { 0 }
-	y := strconv.atoi(node.attributes['anchor-y']) or { 0 }
-	w := strconv.atoi(node.attributes['size-x']) or { 0 }
-	h := strconv.atoi(node.attributes['size-y']) or { 0 }
-	sx := strconv.atoi(node.attributes['scroll-x']) or { 0 }
-	sy := strconv.atoi(node.attributes['scroll-y']) or { 0 }
-	di := DrawableInit{
-		widget_type: node.name
-		status: node.attributes['status']
-		title: node.attributes['title']
-		text: node.attributes['text']
-		anchor: term.Coord{
-			x: x
-			y: y
+	widget_type := node.name
+
+	mut widget := match widget_type {
+		'ui-button' {
+			Drawable(UiButton{})
 		}
-		size: term.Coord{
-			x: w
-			y: h
+		else {
+			Drawable(UiTextBox{})
 		}
-		scroll: term.Coord{
-			x: sx
-			y: sy
-		}
-		style: from_css(node.attributes['styles'])
-		hover_style: from_css(node.attributes['hover-style'])
 	}
-	return from_init(di)
+	for k, v in node.attributes {
+		match k {
+			'anchor-x' { widget.anchor.x = strconv.atoi(v) or { 0 } }
+			'anchor-y' { widget.anchor.y = strconv.atoi(v) or { 0 } }
+			'size-x' { widget.size.x = strconv.atoi(v) or { 0 } }
+			'size-y' { widget.size.y = strconv.atoi(v) or { 0 } }
+			'scroll-x' { widget.scroll.x = strconv.atoi(v) or { 0 } }
+			'scroll-y' { widget.scroll.y = strconv.atoi(v) or { 0 } }
+			'status' { widget.status = v }
+			'title' { widget.title = v }
+			'style' { widget.style = from_css(v) }
+			'hover-style' { widget.hover_style = from_css(v) }
+			else {}
+		}
+	}
+	widget.text = node.text
+	return widget
 }

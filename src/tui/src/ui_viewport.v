@@ -96,27 +96,27 @@ pub fn viewport_create() &UiViewport {
 	return vp
 }
 
-pub fn (r UiViewport) get_text_lines() []string {
+pub fn (vp UiViewport) get_text_lines() []string {
 	return []
 }
 
-pub fn (mut r UiViewport) clear() {
-	r.ctx.clear()
+pub fn (mut vp UiViewport) clear() {
+	vp.ctx.clear()
 }
 
-pub fn (mut r UiViewport) add(mut dw Drawable) {
-	r.drawables << dw
+pub fn (mut vp UiViewport) add(mut dw Drawable) {
+	vp.drawables << dw
 }
 
-pub fn (mut r UiViewport) add_event_listener(t string, el EventListener) {
-	r.event_listeners[t] << el
+pub fn (mut vp UiViewport) add_event_listener(t string, el EventListener) {
+	vp.event_listeners[t] << el
 }
 
-pub fn (r UiViewport) draw(mut ctx ui.Context) {
-	r.style.apply_to_context(mut ctx)
-	ctx.draw_text(r.anchor.x, r.anchor.y, '==${pad_right(r.title, '=', r.size.x - 3)}=')
+pub fn (vp UiViewport) draw(mut ctx ui.Context) {
+	vp.style.apply_to_context(mut ctx)
+	ctx.draw_text(vp.anchor.x, vp.anchor.y, '==${pad_right(vp.title, '=', vp.size.x - 3)}=')
 	ctx.reset()
-	for dw in r.drawables {
+	for dw in vp.drawables {
 		dw.draw(mut ctx)
 	}
 
@@ -126,15 +126,15 @@ pub fn (r UiViewport) draw(mut ctx ui.Context) {
 		border_set: BorderSets{}.single_solid
 		weight: .normal
 	}.apply_to_context(mut ctx)
-	ctx.draw_text(0, r.size.y, r.status)
+	ctx.draw_text(0, vp.size.y, vp.status)
 	ctx.reset()
 }
 
-pub fn (mut r UiViewport) render() {
-	r.style.apply_to_context(mut r.ctx)
-	r.ctx.draw_text(r.anchor.x, r.anchor.y, '==${pad_right(r.title, '=', r.size.x - 3)}=')
-	for dw in r.drawables {
-		dw.draw(mut r.ctx)
+pub fn (mut vp UiViewport) render() {
+	vp.style.apply_to_context(mut vp.ctx)
+	vp.ctx.draw_text(vp.anchor.x, vp.anchor.y, '==${pad_right(vp.title, '=', vp.size.x - 3)}=')
+	for dw in vp.drawables {
+		dw.draw(mut vp.ctx)
 	}
 
 	Style{
@@ -142,18 +142,18 @@ pub fn (mut r UiViewport) render() {
 		color: Color.black.to_ui_color()
 		border_set: BorderSets{}.single_solid
 		weight: .normal
-	}.apply_to_context(mut r.ctx)
-	r.ctx.draw_text(0, r.size.y, r.status)
+	}.apply_to_context(mut vp.ctx)
+	vp.ctx.draw_text(0, vp.size.y, vp.status)
 }
 
-pub fn (mut r UiViewport) dispatch_event(e &ui.Event, mut target Drawable) {
-	r.status = '
+pub fn (mut vp UiViewport) dispatch_event(e &ui.Event, mut target Drawable) {
+	vp.status = '
 		x : ${e.x}, y : ${e.y}, typ : ${e.typ}, height : ${e.height}, width : ${e.width}, direction : ${e.direction}, code : ${e.code}
 	'.trim_indent()
 	/*.filter(fn [e] (dw Drawable) bool {
 		return dw.get_box().contains(x: e.x, y: e.y)
 	})*/
-	for mut dw in r.drawables {
+	for mut dw in vp.drawables {
 		dwbox := dw.get_box()
 		is_in := dwbox.contains(x: e.x, y: e.y)
 		// dw.status="(${e.x},${e.y}) in ${dwbox.to_string()} $is_in"
@@ -174,19 +174,19 @@ pub fn (mut r UiViewport) dispatch_event(e &ui.Event, mut target Drawable) {
 	}
 }
 
-pub fn (mut r UiViewport) dispatch_event_by_name(event_name string, event &ui.Event, mut target Drawable) {
-	r.dispatch_event(event, mut target)
+pub fn (mut vp UiViewport) dispatch_event_by_name(event_name string, event &ui.Event, mut target Drawable) {
+	vp.dispatch_event(event, mut target)
 }
 
-fn (r UiViewport) get_box() Box {
+fn (vp UiViewport) get_box() Box {
 	return Box{
-		top: r.anchor.y
-		right: r.anchor.x
-		bottom: r.anchor.y + r.size.y
-		left: r.anchor.x + r.size.x
+		top: vp.anchor.y
+		right: vp.anchor.x
+		bottom: vp.anchor.y + vp.size.y
+		left: vp.anchor.x + vp.size.x
 	}
 }
 
-pub fn (d UiViewport) to_json() string {
-	return to_json(d)
+pub fn (vp UiViewport) to_json() string {
+	return to_json(vp)
 }
