@@ -2,7 +2,6 @@ module tui
 
 import term.ui
 import term
-import x.json2
 
 pub struct UiButton {
 	widget_type string = 'ui-button'
