@@ -4,11 +4,11 @@ import term.ui
 import term
 
 pub struct UiViewport {
-	widget_type string = 'ui-viewport'
 mut:
 	is_hovered          bool
 	hovered_line_number i32
 pub mut:
+	widget_type     string = 'ui-viewport'
 	log             []string
 	status          string
 	title           string

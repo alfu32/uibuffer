@@ -2,13 +2,23 @@ module tui
 
 import term
 import term.ui
-import strconv
+import encoding.hex
 
 pub enum TextWeight {
 	normal = 0xA167
 	bold
 	strikethrough
 	underlined
+}
+
+pub fn textweight_decode(s string) TextWeight {
+	return match s {
+		'normal' { TextWeight.normal }
+		'bold' { TextWeight.bold }
+		'strikethrough' { TextWeight.strikethrough }
+		'underlined' { TextWeight.underlined }
+		else { TextWeight.normal }
+	}
 }
 
 pub enum Visibility {
@@ -44,27 +54,31 @@ pub struct Style {
 	weight     TextWeight
 }
 
-pub fn color_from_string(s string) ui.Color {
-	c := s.split(',')
+pub fn decode_color(s string) ui.Color {
+	rgb := hex.decode(s) or { [u8(0), 0, 0] }
 	return ui.Color{
-		r: u8(strconv.atoi(c[0]))
-		g: u8(strconv.atoi(c[1]))
-		b: u8(strconv.atoi(c[2]))
+		r: rgb[0]
+		g: rgb[1]
+		b: rgb[2]
 	}
+}
+
+pub fn encode_color(c ui.Color) string {
+	return hex.encode([c.r, c.g, c.b])
 }
 
 pub fn from_css(css string) Style {
 	mut background := ui.Color{}
 	mut color := ui.Color{}
 	mut border_set := ''
-	mut weight := .normal
+	mut weight := TextWeight.normal
 	for it in css.split(';') {
 		kv := it.split(':')
 		match kv[0] {
-			'background' { background = color_from_string(kv[1]) }
-			'color' { color = color_from_string(kv[1]) }
+			'background' { background = decode_color(kv[1]) }
+			'color' { color = decode_color(kv[1]) }
 			'border_set' { border_set = kv[1] }
-			'weight' { weight = TextWeight(kv[1]) }
+			'weight' { weight = textweight_decode(kv[1]) }
 			else {}
 		}
 	}
@@ -138,5 +152,5 @@ pub fn (s Style) apply_to_text(text string) string {
 }
 
 pub fn (s Style) to_css() string {
-	return 'background:${s.background};color:${s.color};border_set:${s.border_set};weight:${s.weight}'
+	return 'background:${encode_color(s.background)};color:${encode_color(s.color)};border_set:${s.border_set};weight:${s.weight}'
 }

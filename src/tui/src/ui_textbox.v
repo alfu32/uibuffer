@@ -5,11 +5,11 @@ import term
 import math
 
 pub struct UiTextBox {
-	widget_type string = 'ui-textbox'
 mut:
 	is_hovered          bool
 	hovered_line_number i32
 pub mut:
+	widget_type     string = 'ui-textbox'
 	status          string
 	title           string
 	event_listeners map[string][]EventListener = {

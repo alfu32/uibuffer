@@ -4,8 +4,8 @@ import term.ui
 import term
 
 pub struct UiButton {
-	widget_type string = 'ui-button'
 mut:
+	widget_type         string = 'ui-button'
 	is_hovered          bool
 	hovered_line_number i32
 pub mut:
