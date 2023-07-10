@@ -22,6 +22,7 @@ pub interface Drawable {
 	get_text_lines() []string
 	to_json() string
 mut:
+	is_loading bool
 	widget_type string
 	is_hovered bool
 	hovered_line_number i32

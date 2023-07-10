@@ -9,6 +9,7 @@ mut:
 	is_hovered          bool
 	hovered_line_number i32
 pub mut:
+	is_loading      bool = false
 	status          string
 	title           string
 	event_listeners map[string][]EventListener = {
@@ -46,6 +47,9 @@ pub fn (mut r UiButton) add_event_listener(t string, el EventListener) {
 
 pub fn (r UiButton) draw(mut ctx ui.Context) {
 	tx := r.text.trim_indent().trim(' ')
+	loader := '|/-\\'.runes()
+	frame := (ctx.frame_count % 4)
+
 	mut style := r.style
 	mut tl, tr, bl, br, ho, ve := if r.is_hovered {
 		style = r.hover_style
@@ -53,9 +57,13 @@ pub fn (r UiButton) draw(mut ctx ui.Context) {
 	} else {
 		r.style.border_set.borders()
 	}
+	mut lr := ve.runes()[0]
+	if r.is_loading {
+		lr = loader[frame]
+	}
 	style.apply_to_context(mut ctx)
 	ctx.draw_text(r.anchor.x, r.anchor.y, '${tl}${ho}${pad_right('', ho, r.size.x - 3)}${tr}')
-	ctx.draw_text(r.anchor.x, r.anchor.y + 1, '${ve}${pad_center(tx, ' ', r.size.x - 2)}${ve}')
+	ctx.draw_text(r.anchor.x, r.anchor.y + 1, '${lr}${pad_center(tx, ' ', r.size.x - 2)}${ve}')
 	ctx.draw_text(r.anchor.x, r.anchor.y + r.size.y - 1, '${bl}${pad_left(r.status, ho,
 		r.size.x - 2)}${br}')
 }

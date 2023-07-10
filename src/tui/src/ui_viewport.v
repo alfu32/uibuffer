@@ -8,6 +8,7 @@ mut:
 	is_hovered          bool
 	hovered_line_number i32
 pub mut:
+	is_loading      bool   = false
 	widget_type     string = 'ui-viewport'
 	log             []string
 	status          string

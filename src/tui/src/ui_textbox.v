@@ -9,6 +9,7 @@ mut:
 	is_hovered          bool
 	hovered_line_number i32
 pub mut:
+	is_loading      bool   = false
 	widget_type     string = 'ui-textbox'
 	status          string
 	title           string

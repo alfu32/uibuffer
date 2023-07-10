@@ -32,6 +32,11 @@ fn main_0() {
 	}
 }
 
+fn set_timeout(f fn (), duration time.Duration) {
+	time.sleep(duration)
+	f()
+}
+
 fn main() {
 	// w, h := term.get_terminal_size()
 	mut vp := tui.viewport_create()
@@ -82,7 +87,14 @@ fn main() {
 		}
 	}
 	r2.add_event_listener('mouse_up', fn (event &ui.Event, mut target tui.Drawable) bool {
-		target.status += '+'
+		target.is_loading = true
+		s := target.status
+		target.status = 'loading'
+		t := spawn set_timeout(fn [mut target, s] () {
+			target.is_loading = false
+			target.status += '+'
+			target.status = s
+		}, time.second * 2)
 		return false
 	})
 	mut r3 := tui.UiButton{
@@ -110,12 +122,17 @@ fn main() {
 		}
 	}
 	r3.add_event_listener('mouse_up', fn (event &ui.Event, mut target tui.Drawable) bool {
-		exit(0)
+		target.is_loading = true
+		target.status = 'exiting'
+		t := spawn set_timeout(fn [mut target] () {
+			target.is_loading = false
+			exit(0)
+		}, time.second * 2)
 		return false
 	})
 	vp.add(mut r)
 	vp.add(mut r2)
 	vp.add(mut r3)
 	// vp.add(mut b1)
-	vp.ctx.run()
+	vp.ctx.run()!
 }
